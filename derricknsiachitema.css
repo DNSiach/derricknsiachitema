@@ -39,6 +39,8 @@ nav {
     color: #ffffff;
     font-size: 1.5rem;
     font-weight: bold;
+    padding-left: 0;
+    margin-left: -0.5rem;
 }
 
 .nav-links {
@@ -190,6 +192,34 @@ p {
 .contact-item i {
     font-size: 1.5rem;
     color: rgb(255, 255, 255);
+}
+
+/* Contact Icons Styling */
+.contact-item i.fa-whatsapp,
+.contact-item .fa-whatsapp {
+    color: #25D366; /* WhatsApp green */
+    font-size: 1.6rem;
+    transition: transform 0.3s ease;
+}
+
+.contact-item i.fa-envelope,
+.contact-item .fa-envelope {
+    color: #4285F4; /* Gmail blue */
+    font-size: 1.6rem;
+    transition: transform 0.3s ease;
+}
+
+.contact-item i.fa-map-marker-alt,
+.contact-item .fa-map-marker-alt {
+    color: #EA4335; /* Maps red */
+    font-size: 1.6rem;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effect for all contact icons */
+.contact-item i:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
 }
 
 /* Footer Styles */
