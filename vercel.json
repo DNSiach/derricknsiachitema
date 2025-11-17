@@ -5,6 +5,6 @@
     { "src": "**/*.css", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "^/$", "dest": "/derricknsiachitema.html" }
+    { "src": "^/$", "dest": "/index.html" }
   ]
 }
