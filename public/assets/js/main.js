@@ -40,7 +40,10 @@
   function toggleScrolled() {
     const selectBody = document.querySelector('body');
     const selectHeader = document.querySelector('#header');
-    if (!selectHeader.classList.contains('scroll-up-sticky') && !selectHeader.classList.contains('sticky-top') && !selectHeader.classList.contains('fixed-top')) return;
+    if (!selectHeader) return;
+    const hasSticky = selectHeader.classList.contains('scroll-up-sticky') || selectHeader.classList.contains('sticky-top') || selectHeader.classList.contains('fixed-top');
+    if (!hasSticky) return;
+    if (!selectBody) return;
     window.scrollY > 100 ? selectBody.classList.add('scrolled') : selectBody.classList.remove('scrolled');
   }
 
@@ -51,11 +54,13 @@
    * Mobile nav toggle
    */
   const mobileNavToggleBtn = document.querySelector('.mobile-nav-toggle');
-
   function mobileNavToogle() {
-    document.querySelector('body').classList.toggle('mobile-nav-active');
-    mobileNavToggleBtn.classList.toggle('bi-list');
-    mobileNavToggleBtn.classList.toggle('bi-x');
+    const body = document.querySelector('body');
+    if (body) body.classList.toggle('mobile-nav-active');
+    if (mobileNavToggleBtn) {
+      mobileNavToggleBtn.classList.toggle('bi-list');
+      mobileNavToggleBtn.classList.toggle('bi-x');
+    }
   }
   if (mobileNavToggleBtn) {
     mobileNavToggleBtn.addEventListener('click', mobileNavToogle);
@@ -95,13 +100,15 @@
       window.scrollY > 100 ? scrollTop.classList.add('active') : scrollTop.classList.remove('active');
     }
   }
-  scrollTop.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+  if (scrollTop) {
+    scrollTop.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     });
-  });
+  }
 
   window.addEventListener('load', toggleScrollTop);
   document.addEventListener('scroll', toggleScrollTop);
@@ -110,12 +117,14 @@
    * Animation on scroll function and init
    */
   function aosInit() {
-    AOS.init({
-      duration: 600,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
+    if (typeof AOS !== 'undefined' && AOS && typeof AOS.init === 'function') {
+      AOS.init({
+        duration: 600,
+        easing: 'ease-in-out',
+        once: true,
+        mirror: false
+      });
+    }
   }
   window.addEventListener('load', aosInit);
 
@@ -123,25 +132,38 @@
    * Animate the skills items on reveal
    */
   let skillsAnimation = document.querySelectorAll('.skills-animation');
-  skillsAnimation.forEach((item) => {
-    new Waypoint({
-      element: item,
-      offset: '80%',
-      handler: function(direction) {
-        let progress = item.querySelectorAll('.progress .progress-bar');
-        progress.forEach(el => {
-          el.style.width = el.getAttribute('aria-valuenow') + '%';
+  if (skillsAnimation.length > 0 && typeof Waypoint !== 'undefined') {
+    skillsAnimation.forEach((item) => {
+      try {
+        new Waypoint({
+          element: item,
+          offset: '80%',
+          handler: function(direction) {
+            let progress = item.querySelectorAll('.progress .progress-bar');
+            progress.forEach(el => {
+              const val = el.getAttribute('aria-valuenow') || '0';
+              el.style.width = val + '%';
+            });
+          }
         });
+      } catch (err) {
+        // Waypoint init failed; fail silently
+        console.warn('Waypoint init error', err);
       }
     });
-  });
+  }
 
   /**
    * Initiate glightbox
    */
-  const glightbox = GLightbox({
-    selector: '.glightbox'
-  });
+  let glightbox = null;
+  if (typeof GLightbox !== 'undefined') {
+    try {
+      glightbox = GLightbox({ selector: '.glightbox' });
+    } catch (err) {
+      console.warn('GLightbox init failed', err);
+    }
+  }
 
   /**
    * Init isotope layout and filters
@@ -152,22 +174,29 @@
     let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
 
     let initIsotope;
-    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
-      initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
-        itemSelector: '.isotope-item',
-        layoutMode: layout,
-        filter: filter,
-        sortBy: sort
+    if (typeof imagesLoaded === 'function' && typeof Isotope === 'function') {
+      imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
+        try {
+          initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
+            itemSelector: '.isotope-item',
+            layoutMode: layout,
+            filter: filter,
+            sortBy: sort
+          });
+        } catch (err) {
+          console.warn('Isotope init failed', err);
+        }
       });
-    });
+    }
 
     isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
       filters.addEventListener('click', function() {
-        isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
+        const active = isotopeItem.querySelector('.isotope-filters .filter-active');
+        if (active) active.classList.remove('filter-active');
         this.classList.add('filter-active');
-        initIsotope.arrange({
-          filter: this.getAttribute('data-filter')
-        });
+        if (initIsotope && typeof initIsotope.arrange === 'function') {
+          initIsotope.arrange({ filter: this.getAttribute('data-filter') });
+        }
         if (typeof aosInit === 'function') {
           aosInit();
         }
@@ -180,15 +209,20 @@
    * Init swiper sliders
    */
   function initSwiper() {
+    if (typeof Swiper === 'undefined') return;
     document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
-      let config = JSON.parse(
-        swiperElement.querySelector(".swiper-config").innerHTML.trim()
-      );
+      try {
+        const cfgEl = swiperElement.querySelector(".swiper-config");
+        let config = {};
+        if (cfgEl) config = JSON.parse(cfgEl.innerHTML.trim());
 
-      if (swiperElement.classList.contains("swiper-tab")) {
-        initSwiperWithCustomPagination(swiperElement, config);
-      } else {
-        new Swiper(swiperElement, config);
+        if (swiperElement.classList.contains("swiper-tab") && typeof initSwiperWithCustomPagination === 'function') {
+          initSwiperWithCustomPagination(swiperElement, config);
+        } else {
+          new Swiper(swiperElement, config);
+        }
+      } catch (err) {
+        console.warn('Swiper init error', err);
       }
     });
   }
@@ -198,11 +232,14 @@
   /**
    * Frequently Asked Questions Toggle
    */
-  document.querySelectorAll('.faq-item h3, .faq-item .faq-toggle').forEach((faqItem) => {
-    faqItem.addEventListener('click', () => {
-      faqItem.parentNode.classList.toggle('faq-active');
+  const faqToggleEls = document.querySelectorAll('.faq-item h3, .faq-item .faq-toggle');
+  if (faqToggleEls.length > 0) {
+    faqToggleEls.forEach((faqItem) => {
+      faqItem.addEventListener('click', () => {
+        if (faqItem.parentNode) faqItem.parentNode.classList.toggle('faq-active');
+      });
     });
-  });
+  }
 
   /**
    * Correct scrolling position upon page load for URLs containing hash links.
@@ -212,11 +249,11 @@
       if (document.querySelector(window.location.hash)) {
         setTimeout(() => {
           let section = document.querySelector(window.location.hash);
-          let scrollMarginTop = getComputedStyle(section).scrollMarginTop;
-          window.scrollTo({
-            top: section.offsetTop - parseInt(scrollMarginTop),
-            behavior: 'smooth'
-          });
+          if (!section) return;
+          let scrollMarginTop = getComputedStyle(section).scrollMarginTop || '0px';
+          let margin = parseInt(scrollMarginTop, 10);
+          if (isNaN(margin)) margin = 0;
+          window.scrollTo({ top: section.offsetTop - margin, behavior: 'smooth' });
         }, 100);
       }
     }

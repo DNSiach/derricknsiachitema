@@ -50,7 +50,7 @@ Notes:
 
 ## Troubleshooting
 - 404 on root: confirm `index.html` exists or `vercel.json` route is present.
-- Assets not loading: check paths in your HTML (use relative paths like `./public/assets/css/main.css`).
+- Assets not loading: check paths in your HTML — use paths starting with `/assets/...` (these map to `public/assets/` on Vercel). For example: `/assets/css/main.css`.
 - Need HTTPS custom domain: add via Vercel Dashboard and follow instructions.
 
 If you want, I can:
