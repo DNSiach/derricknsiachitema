@@ -96,6 +96,24 @@
   --contrast-color: #ffffff;
 }
 
+/* When dark theme is enabled, ensure elements that force a light background
+   adapt to the dark theme to avoid bright blocks (About, Testimonials, etc.) */
+[data-theme="dark"] .light-background {
+  --background-color: var(--background-color); /* keep global dark background */
+  --surface-color: #1e1e1e;
+  --default-color: #e4e4e4;
+  --heading-color: #ffffff;
+  --contrast-color: #ffffff;
+}
+
+/* Ensure services boxes (which often use --surface-color) use darker surfaces in dark mode */
+[data-theme="dark"] .services .service-item,
+[data-theme="dark"] .testimonials .testimonial-item,
+[data-theme="dark"] .about .personal-info,
+[data-theme="dark"] .portfolio .portfolio-card {
+  background-color: var(--surface-color);
+}
+
 /* Smooth scroll */
 :root {
   scroll-behavior: smooth;
