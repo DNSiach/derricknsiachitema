@@ -281,4 +281,30 @@
   window.addEventListener('load', navmenuScrollspy);
   document.addEventListener('scroll', navmenuScrollspy);
 
+  /**
+   * Make links open in a new tab by default.
+   * Skips anchors (hash) and mailto/tel links. Adds rel for security.
+   */
+  function setLinksOpenInNewTab() {
+    try {
+      document.querySelectorAll('a[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        if (!href) return;
+        const lower = href.toLowerCase();
+        if (lower.startsWith('#') || lower.startsWith('mailto:') || lower.startsWith('tel:')) return;
+        if (!a.hasAttribute('target')) a.setAttribute('target', '_blank');
+        // Ensure safe opener behavior
+        const rel = (a.getAttribute('rel') || '');
+        if (!/noopener/i.test(rel) || !/noreferrer/i.test(rel)) {
+          a.setAttribute('rel', ((rel + ' noopener noreferrer').trim()));
+        }
+      });
+    } catch (err) {
+      // Fail silently
+      console.warn('Error setting links to open in new tab', err);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', setLinksOpenInNewTab);
+
 })();
