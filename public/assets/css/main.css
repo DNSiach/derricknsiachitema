@@ -1618,6 +1618,12 @@ section,
   transform: translateY(0);
 }
 
+.form-label-left p {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 0.5rem;     /* optional: adds nice spacing */
+  } 
+  s
 /*--------------------------------------------------------------
 # Portfolio Details Section
 --------------------------------------------------------------*/
